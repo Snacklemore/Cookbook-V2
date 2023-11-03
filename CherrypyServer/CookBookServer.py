@@ -5,13 +5,10 @@ import CherrypyMako
 import datetime
 import smtplib
 import sqlite3
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 from datetime import datetime,date,time,timezone
 import bcrypt
 import json
-import psycopg2
 from db import connpsql
 userDB = "users.db"
 
@@ -19,7 +16,6 @@ CherrypyMako.setup()
 #app needs to start in 01CrowChit\01
 #(root(01)/public | root(01)/templates)
 root_dir = os.path.abspath( os.getcwd())
-#ASSERT EVERY DYNAMIC DATABASE REQUEST!!!!!
 SESSION_KEY = '_cp_username'
 
 #implemented https://github.com/cherrypy/tools/blob/master/AuthenticationAndAccessRestrictions
@@ -91,20 +87,7 @@ class appDatabaseRegister(object):
 #fetch user data
     @cherrypy.tools.accept(media='text/plain')
     def GET(self):
-        hash = "hash"
-        with sqlite3.connect(userDB) as c:
-            r = c.execute("""  SELECT 
-                        username 
-                            FROM 
-                        users  
-                            WHERE hpassword = ?
-            """,[hash]) 
-            result = r.fetchone()[0]
-        cherrypy.log(result)
-        #ASSERT EVERY DYNAMIC DATABASE REQUEST!!!!!
-           
-        return result
-
+        pass
 
        #Restrict username duplicates!!!
     def POST(self,passphrase):
@@ -133,47 +116,11 @@ class appDatabaseLogin(object):
     #GET request to loginDB is the session logout
     @require()
     def GET(self):
-        sess = cherrypy.session
-        username = sess.get(SESSION_KEY,None)
-        sess[SESSION_KEY] = None
-        if username:
-            cherrypy.request.login = None
-            
-           
-        return 
+        pass
 #add new userdata
 
     def POST(self,username,password):
-       cherrypy.log(username)
-       cherrypy.log(password)
-       rusername = username
-       #Authenticate 
-       ## Fetch hash from username and email
-       with sqlite3.connect(userDB) as c:
-            r = c.execute(""" SELECT passwordhash FROM users WHERE username=?""",[rusername])
-         
-       
-       try:
-            passwordhash = r.fetchall()[0]
-            print(passwordhash[0])
-       except IndexError as e:
-            nouser = "noUserFoundError"
-            print(nouser)
-            return "denied"
-       
-       if (bcrypt.checkpw(password.encode('utf-8'),passwordhash[0])):
-            cherrypy.log("true")
-            cherrypy.session[SESSION_KEY] = cherrypy.request.login = username;
-            cherrypy.log("User logged in ?",username)
-            
-            return "success"
-            
-
-            
-       
-      
-       
-       return "denied"
+       pass
 #(possibly update user data)
     def PUT(self):
         return
@@ -216,10 +163,7 @@ class appDatabasePdf(object):
             json_pdf_names = json.dumps(pdf_names)
             cur1.close()
             return json_pdf_names
-            #cur = connpsql.cursor()
-            #cur.execute("SELECT pdf_data FROM pdf_storage WHERE id = %s", (1,))
-            #pdf_data = cur.fetchone()[0]
-            #return pdf_data
+           
         
        
     
@@ -228,20 +172,9 @@ class appDatabasePdf(object):
     
     @require()
     def POST(self,username):
-        print("username sent::")
-        print(username)
-        error = "-1"
-        #find username in db, return username if found
-        with sqlite3.connect(userDB) as c:
-            r = c.execute(""" SELECT username FROM users WHERE username=?;""", [username])
-        try:
-            response = r.fetchone()[0]
-        except TypeError as e:
-            response = error
-        
-        #if no username found return -1 or similar error message
+        pass
        
-        return response
+        
     def PUT(self):
         return
     def DELETE(self):
@@ -276,65 +209,16 @@ class Root(object):
         return """"""
     
     
-    def mail(self):
-       
-        return ""
-    @cherrypy.expose
-    def verify(self,hash,email):
-    #ASSERT EMAIL
-    #ASSERT HASH
-        #fetch database entry via email
-        #compare activation hashes
-        #activate account if matching
-        cherrypy.log(hash)
-        cherrypy.log(email)
-        return
-        
-
-
-#user applies 
-def create_table(conn,str):
     
-    c = conn.cursor()
-    c.execute(str)
-    
+        
 
-def create_connection(db_file):
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
-    except:
-        print("Variable  is not defined")
-        
-    return conn
 
-def send_email(user, pwd, recipient, subject, body):
-    FROM = user
-    TO = recipient if isinstance(recipient, list) else [recipient]
-    SUBJECT = subject
-    TEXT = body
 
-       # Prepare actual message
-    message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-  """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
-    try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.ehlo()
-            server.starttls()
-            server.login(user, pwd)
-            server.sendmail(FROM, TO, message)
-            server.close()
-            print('successfully sent the mail')
-    except:
-            print("failed to send mail")
-        
-        
-        
-    return
+
+
         
 if __name__ == '__main__':
-    dbconn = create_connection("users.db")
+    
     
    
     
@@ -384,10 +268,7 @@ if __name__ == '__main__':
                       'tools.response_headers.on': True,
                       'tools.response_headers.headers': [('Content-Type', 'text/plain')]
         },
-        '/start': {'request.dispatch' : cherrypy.dispatch.MethodDispatcher(),
-                      'tools.response_headers.on': True,
-                      'tools.response_headers.headers': [('Content-Type', 'text/plain')]
-        },
+        
         
 }
     
