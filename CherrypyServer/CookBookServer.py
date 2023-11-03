@@ -3,8 +3,6 @@ import os, os.path
 import cherrypy
 import CherrypyMako
 import datetime
-import smtplib
-import sqlite3
 from ws4py.messaging import TextMessage
 from datetime import datetime,date,time,timezone
 import bcrypt
@@ -13,7 +11,6 @@ from db import connpsql
 userDB = "users.db"
 
 CherrypyMako.setup()
-#app needs to start in 01CrowChit\01
 #(root(01)/public | root(01)/templates)
 root_dir = os.path.abspath( os.getcwd())
 SESSION_KEY = '_cp_username'
@@ -84,12 +81,10 @@ def name_is(reqd_username):
 #Register API
 @cherrypy.expose
 class appDatabaseRegister(object):
-#fetch user data
     @cherrypy.tools.accept(media='text/plain')
     def GET(self):
         pass
 
-       #Restrict username duplicates!!!
     def POST(self,passphrase):
        cherrypy.log(passphrase)
        
@@ -101,30 +96,23 @@ class appDatabaseRegister(object):
         return "success"
        else:
         return "-1"
-#(possibly update user data)
     def PUT(self):
         return
-#delete user data
     def DELETE(self):
         return
     
 #Login API
 @cherrypy.expose
 class appDatabaseLogin(object):
-#fetch user data
     @cherrypy.tools.accept(media='text/plain')
-    #GET request to loginDB is the session logout
     @require()
     def GET(self):
         pass
-#add new userdata
 
     def POST(self,username,password):
        pass
-#(possibly update user data)
     def PUT(self):
         return
-#delete user data
     def DELETE(self):
         return
     
@@ -184,7 +172,6 @@ class appDatabasePdf(object):
         
  
 class Root(object):
-    #pull login into seperate uri, redirect directly to chat, and redirect if no login!
     @cherrypy.expose
     @cherrypy.tools.mako(filename='content.mako')
     @require()
