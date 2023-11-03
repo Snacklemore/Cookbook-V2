@@ -1,0 +1,5 @@
+**/**.pdf
+**/**.docx
+users.db
+db.py
+CherrypyServer/__pycache__/db.cpython-39.pyc
