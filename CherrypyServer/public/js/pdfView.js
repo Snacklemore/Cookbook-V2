@@ -125,6 +125,21 @@ $(document).ready(function () {
     document.documentElement.scrollTop = 0;
     }    
     
+    var createNewButton = document.getElementById("create_recipe");
+    if (createNewButton != null)
+    {
+        createNewButton.addEventListener("click",function(){
+            $.post("/pdf",{
+                username: "test"
+            }).done(function(ret){
+    
+            });
+    
+        });
+    }
+    
+
+
     $.get("/pdf", {
         type: "all",
         id: -1,
@@ -204,25 +219,7 @@ $(document).ready(function () {
     
     });
 
-   /* 
-	$.get("/pdf", {
-        type: "all",
-        
-        
-    
-        },{dataType: 'binary'}).done(function (retval) {
-            let utf8Encode = new TextEncoder();
-            var pdfBytes = utf8Encode.encode(retval);
-            var u = document.getElementById("iframe1");
-            var blob = new Blob([pdfBytes],{type:'application/pdf'});
-            var url = URL.createObjectURL(blob);
-            console.log(url);
-            u.source = url;
-            u.hidden = false;
-        
-        console.log(retval);
-    //console.log(arr);
-    });*/
+   
 		
 		
 		

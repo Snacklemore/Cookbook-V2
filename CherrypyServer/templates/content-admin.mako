@@ -11,6 +11,7 @@
 				<button onclick="prevPage()">Previous</button>
 				<span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
 				<button onclick="nextPage()">Next</button>
+				<button id="create_recipe">Create New Recipe</button>
 			</div>
 			<canvas id="the-canvas"></canvas>
 		</div>
@@ -27,6 +28,3 @@
 		</div>
 	 </div>
 </%block>
-
-
-

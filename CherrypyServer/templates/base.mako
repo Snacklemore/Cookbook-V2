@@ -13,7 +13,7 @@
     
     <script src="static/js/pdf.js"></script>
 		<script src="static/js/aja.js"></script>
-    <script src="static/js/pdfView.js"></script>
+    
 		<meta http-equiv="cache-control" content="no-cache" />
 		
     <style>

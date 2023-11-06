@@ -1,7 +1,9 @@
 import hashlib
 import os, os.path
 import cherrypy
-import CherrypyMako
+#import CherrypyMako
+from mako.template import Template
+from mako.lookup import TemplateLookup
 import datetime
 from ws4py.messaging import TextMessage
 from datetime import datetime,date,time,timezone
@@ -10,7 +12,7 @@ import json
 from db import connpsql
 userDB = "users.db"
 
-CherrypyMako.setup()
+#CherrypyMako.setup()
 #(root(01)/public | root(01)/templates)
 root_dir = os.path.abspath( os.getcwd())
 SESSION_KEY = '_cp_username'
@@ -77,7 +79,7 @@ def name_is(reqd_username):
 ########################################################################################################  
 ########################################################################################################        
 
-
+from db import adminAuth
 #Register API
 @cherrypy.expose
 class appDatabaseRegister(object):
@@ -91,8 +93,12 @@ class appDatabaseRegister(object):
        if (passphrase == "123"):
         cherrypy.log("true")
         cookie = cherrypy.response.cookie
-        cherrypy.session[SESSION_KEY] = cherrypy.request.login = cookie
-       
+        cherrypy.session[SESSION_KEY] = cherrypy.request.login = "user"
+        return "success"
+       if ( passphrase == adminAuth):
+        cherrypy.log("true")
+        cookie = cherrypy.response.cookie
+        cherrypy.session[SESSION_KEY] = cherrypy.request.login = "admin"
         return "success"
        else:
         return "-1"
@@ -160,6 +166,8 @@ class appDatabasePdf(object):
     
     @require()
     def POST(self,username):
+        if (cherrypy.request.login == "admin"):
+            print("admin post trigger")
         pass
        
         
@@ -169,31 +177,53 @@ class appDatabasePdf(object):
         return
 
 
-        
- 
+localDirec = os.path.abspath(os.path.dirname(__file__))
+
+#lookup = TemplateLookup(directories=['/templates'])
 class Root(object):
     @cherrypy.expose
-    @cherrypy.tools.mako(filename='content.mako')
     @require()
     def index(self):
         user = cherrypy.request.login
         print(user)
-       
-        return """"""
+        raise cherrypy.HTTPRedirect("/content")
+        
        
     #Require a passphrase, if correct cookie gets authorized
     @cherrypy.expose
-    @cherrypy.tools.mako(filename='index.mako')
     def passphrase(self):
-        return """"""
+        lookup = TemplateLookup(directories=['E:\\Cookbook V2\\CherrypyServer\\templates'])
+        print(lookup.directories)
+        template = lookup.get_template('index.mako')
+
+
+        return template.render()
+        
     
 
     #content delivery from here (eg. the pdf)
     @cherrypy.expose
-    @cherrypy.tools.mako(filename='content.mako')
     @require()
     def content(self):
-        return """"""
+        #determine user type 
+        if (cherrypy.request.login == "admin"):
+            lookup = TemplateLookup(directories=['E:\\Cookbook V2\\CherrypyServer\\templates'])
+
+            template = lookup.get_template('content-admin.mako')
+
+
+            return template.render()
+            #deliver admin content page
+            pass
+        if (cherrypy.request.login == "user"):
+            #deliver user content page
+            lookup = TemplateLookup(directories=['E:\\Cookbook V2\\CherrypyServer\\templates'])
+
+            template = lookup.get_template('content.mako')
+
+
+            return template.render()
+           
     
     
     
