@@ -4,11 +4,14 @@ import cherrypy
 #import CherrypyMako
 from mako.template import Template
 from mako.lookup import TemplateLookup
+import psycopg2
 import datetime
 from ws4py.messaging import TextMessage
 from datetime import datetime,date,time,timezone
 import bcrypt
+import glob
 import json
+import shutil
 from db import connpsql
 userDB = "users.db"
 
@@ -165,9 +168,36 @@ class appDatabasePdf(object):
     
     
     @require()
-    def POST(self,username):
+    def POST(self,ufile):
         if (cherrypy.request.login == "admin"):
             print("admin post trigger")
+            # Either save the file to the directory where server.py is
+            # or save the file to a given path:
+            # upload_path = '/path/to/project/data/'
+            upload_path = os.path.dirname(__file__)
+
+            # Save the file to a predefined filename
+            # or use the filename sent by the client:
+            # upload_filename = ufile.filename
+            upload_filename = 'saved.txt'
+
+            upload_file = os.path.normpath(
+                os.path.join(upload_path, upload_filename))
+            size = 0
+            with open(upload_file, 'wb') as out:
+                while True:
+                    data = ufile.file.read(8192)
+                    if not data:
+                        break
+                    out.write(data)
+                    size += len(data)
+            out = '''
+                File received.
+                Filename: {}
+                Length: {}
+                Mime-type: {}
+                ''' .format(ufile.filename, size, ufile.content_type, data)
+        return out
         pass
        
         
@@ -224,11 +254,75 @@ class Root(object):
 
             return template.render()
            
-    
-    
-    
-        
+    @cherrypy.expose
+    @require()
+    def upload(self,ufile):
+        if (cherrypy.request.login == "admin"):
+            print("admin post trigger")
+            # Either save the file to the directory where server.py is
+            # or save the file to a given path:
+            # upload_path = '/path/to/project/data/'
+            upload_path = os.path.dirname(__file__)
 
+            # Save the file to a predefined filename
+            # or use the filename sent by the client:
+            upload_filename = ufile.filename
+           # upload_filename = 'saved.pdf'
+
+            upload_file = os.path.normpath(
+                os.path.join(upload_path, upload_filename))
+            size = 0
+            with open(upload_file, 'wb') as out:
+                while True:
+                    data = ufile.file.read(8192)
+                    if not data:
+                        break
+                    out.write(data)
+                    size += len(data)
+            
+            out = '''
+                File received.
+                Filename: {}
+                Length: {}
+                Mime-type: {}
+                ''' .format(ufile.filename, size, ufile.content_type, data)
+            print(out)
+
+            f = open(upload_file,"rb")
+            pdf_data = f.read()
+            cur = connpsql.cursor()
+            vals = [(psycopg2.Binary(pdf_data),ufile.filename)]
+            cur.executemany("INSERT INTO pdf_storage (pdf_data,name) VALUES (%s,%s)", vals)
+            f.close()
+            #absolute path
+            move_file(upload_file,"e:\\Cookbook V2\\CherrypyServer\\pdf")
+            return out
+
+#move file helper
+def move_file(source_path, destination_path):
+    try:
+        # Check if the source file exists
+        if not os.path.exists(source_path):
+            print(f"Error: Source file '{source_path}' does not exist.")
+            return
+
+        # Check if the destination folder exists, create it if not
+        destination_folder = os.path.dirname(destination_path)
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)
+
+        # Copy the file
+        shutil.copy(source_path, destination_path)
+        print(f"File '{source_path}' copied to '{destination_path}' successfully.")
+
+        # Delete the source file
+        os.remove(source_path)
+        print(f"Source file '{source_path}' deleted.")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    
 
 
 

@@ -80,7 +80,27 @@ function topFunction() {
     }
 
 
+    function uploadFile() {
+        var input = document.getElementById('fileInput');
+        var file = input.files[0];
+        var formData = new FormData();
+        formData.append('file', file);
 
+        // You can use fetch or XMLHttpRequest to send the formData to the server
+        // For example, using fetch:
+        fetch('/pdf', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('File uploaded successfully', data);
+          })
+          .catch(error => {
+            console.error('Error uploading file', error);
+          });
+        
+    }
 
 $(document).ready(function () {
     
@@ -125,18 +145,7 @@ $(document).ready(function () {
     document.documentElement.scrollTop = 0;
     }    
     
-    var createNewButton = document.getElementById("create_recipe");
-    if (createNewButton != null)
-    {
-        createNewButton.addEventListener("click",function(){
-            $.post("/pdf",{
-                username: "test"
-            }).done(function(ret){
     
-            });
-    
-        });
-    }
     
 
 
