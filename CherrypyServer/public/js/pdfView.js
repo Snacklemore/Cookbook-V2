@@ -177,6 +177,42 @@ $(document).ready(function () {
                         var li = document.createElement("li");
                         li.classList.add("collection-item");
 
+                        var deleteButton = null;
+                        var createDeleteButton = true;
+                        //check if admin html was served
+                        var admin_div = document.getElementById("admin-content");
+                        admin_div.innerHTML = "Content" ;
+                        if (admin_div === null)
+                        {
+                            createDeleteButton = true;
+                        }
+                        
+                        if (createDeleteButton)
+                        {
+                            console.log("Creating delete buttons")
+                            deleteButton = document.createElement("a");
+                            deleteButton.classList.add("waves-effect", "waves-light", "btn");
+                            deleteButton.id = "delete_button" + i;
+                            deleteButton.innerHTML = "Delete";
+                            var recipeID = responseList[i-1][1]
+                            deleteButton.addEventListener("click", function() {
+
+                                //delete request to server (admin auth required)
+                                $.ajax({
+                                    url: '/pdf' + '?' + $.param({"id": recipeID}),
+                                    type: 'DELETE',
+                                    success: function(result) {
+                                        // Do something with the result
+                                        location.reload();
+                                    }
+                                });
+
+                            });
+                            li.appendChild(deleteButton);
+
+                        }
+
+                       
                         var button = document.createElement("a");
                         button.classList.add("waves-effect", "waves-light", "btn");
                         button.id = "button" + i;

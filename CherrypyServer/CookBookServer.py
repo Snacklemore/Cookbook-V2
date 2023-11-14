@@ -107,7 +107,8 @@ class appDatabaseRegister(object):
         return "-1"
     def PUT(self):
         return
-    def DELETE(self):
+    def DELETE(self,id):
+        print("delete triggerd")
         return
     
 #Login API
@@ -154,7 +155,7 @@ class appDatabasePdf(object):
             
             
 
-            cur1.execute("SELECT name,id FROM pdf_storage ORDER BY name ASC")
+            cur1.execute("SELECT name,id FROM pdf_storage ORDER BY name ASC;")
             pdf_names = cur1.fetchall()
             print(pdf_names)
             json_pdf_names = json.dumps(pdf_names)
@@ -169,41 +170,19 @@ class appDatabasePdf(object):
     
     @require()
     def POST(self,ufile):
-        if (cherrypy.request.login == "admin"):
-            print("admin post trigger")
-            # Either save the file to the directory where server.py is
-            # or save the file to a given path:
-            # upload_path = '/path/to/project/data/'
-            upload_path = os.path.dirname(__file__)
-
-            # Save the file to a predefined filename
-            # or use the filename sent by the client:
-            # upload_filename = ufile.filename
-            upload_filename = 'saved.txt'
-
-            upload_file = os.path.normpath(
-                os.path.join(upload_path, upload_filename))
-            size = 0
-            with open(upload_file, 'wb') as out:
-                while True:
-                    data = ufile.file.read(8192)
-                    if not data:
-                        break
-                    out.write(data)
-                    size += len(data)
-            out = '''
-                File received.
-                Filename: {}
-                Length: {}
-                Mime-type: {}
-                ''' .format(ufile.filename, size, ufile.content_type, data)
-        return out
+        
         pass
        
         
     def PUT(self):
         return
-    def DELETE(self):
+    def DELETE(self,id):
+        print("pdf delete trigger")
+        cur1 = connpsql.cursor()
+        cur1.execute("DELETE FROM pdf_storage WHERE id = %s;", (int(id),))
+        connpsql.commit()
+        
+
         return
 
 
@@ -256,7 +235,7 @@ class Root(object):
            
     @cherrypy.expose
     @require()
-    def upload(self,ufile):
+    def uploadPDF(self,ufile):
         if (cherrypy.request.login == "admin"):
             print("admin post trigger")
             # Either save the file to the directory where server.py is
